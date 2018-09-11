@@ -79,7 +79,7 @@ class SmppClient
      * Switch to toggle this feature
      * @var boolean
      */
-    public static $smsNullTerminateOctetStrings = true;
+    public $smsNullTerminateOctetStrings = true;
 
     /**
      * Use sarMsgRefNum and sar_total_segments with 16 bit tags
@@ -419,7 +419,7 @@ class SmppClient
         // Figure out if we need to do CSMS, since it will affect our PDU
         if ($msgLength > $singleSmsOctetLimit) {
             $doCsms = true;
-            if (!self::$csmsMethod != SmppClient::CSMS_PAYLOAD) {
+            if (self::$csmsMethod != SmppClient::CSMS_PAYLOAD) {
                 $parts = $this->splitMessageString($message, $csmsSplit, $dataCoding);
                 $shortMessage = reset($parts);
                 $csmsReference = $this->getCsmsReference();
@@ -525,7 +525,7 @@ class SmppClient
         $this->generateDeliveryReceiptBit();
 
         // Construct PDU with mandatory fields
-        $pdu = pack('a1cca'.(strlen($source->value)+1).'cca'.(strlen($destination->value)+1).'ccc'.($scheduleDeliveryTime ? 'a16x' : 'a1').($validityPeriod ? 'a16x' : 'a1').'ccccca'.(strlen($shortMessage)+(self::$smsNullTerminateOctetStrings ? 1 : 0)),
+        $pdu = pack('a1cca'.(strlen($source->value)+1).'cca'.(strlen($destination->value)+1).'ccc'.($scheduleDeliveryTime ? 'a16x' : 'a1').($validityPeriod ? 'a16x' : 'a1').'ccccca'.(strlen($shortMessage)+($this->smsNullTerminateOctetStrings ? 1 : 0)),
             self::$smsServiceType,
             $source->ton,
             $source->npi,
